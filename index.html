@@ -186,51 +186,12 @@
       letter-spacing: .4px;
     }
     .sub{
-      margin: 0 0 14px;
+      margin: 0;
       color: var(--muted);
       line-height: 1.35;
       font-size: 15px;
       max-width: 62ch;
     }
-
-    .ctaRow{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-      margin-top: 8px;
-    }
-
-    .wiiBtn{
-      position:relative;
-      border:0;
-      background: transparent;
-      padding:0;
-      cursor: inherit;
-      border-radius: 999px;
-      transition: transform .12s ease;
-    }
-    .wiiBtn img{
-      width: 156px;
-      height: auto;
-      display:block;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.12));
-    }
-    .wiiBtn .label{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size: 14px;
-      letter-spacing:.4px;
-      color:#0e2a3a;
-      text-shadow: 0 1px 0 rgba(255,255,255,.7);
-      user-select:none;
-    }
-    .wiiBtn:focus-visible{ outline:none; box-shadow: var(--ring); }
-    .wiiBtn:hover{ transform: translateY(-1px) scale(1.02); }
-    .wiiBtn:active{ transform: translateY(0px) scale(.985); }
 
     .heroRight{
       padding: 16px;
@@ -439,23 +400,6 @@
           WeBrowser is built to feel like the Wii Internet Channel: clean, friendly, and fast to learn.
           Start here if you want the basics in 60 seconds — or scroll for the deeper controls.
         </p>
-
-        <div class="ctaRow">
-          <button class="wiiBtn" id="startTour">
-            <img src="assets/images/button_large.png" alt="">
-            <div class="label">Start the Tour</div>
-          </button>
-
-          <button class="wiiBtn" id="showShortcuts">
-            <img src="assets/images/button_large.png" alt="">
-            <div class="label">Keyboard / Controller</div>
-          </button>
-
-          <button class="wiiBtn" id="toggleSound">
-            <img src="assets/images/button.png" alt="">
-            <div class="label">Sound: <span id="soundState">Off</span></div>
-          </button>
-        </div>
       </div>
 
       <aside class="panel heroRight">
@@ -475,13 +419,13 @@
     </section>
 
     <div class="sectionHead">
-      <h2 id="tourTitle">Tour — Page 1</h2>
+      <h2 id="featuresTitle">Features — Page 1</h2>
       <div class="hint">Use ◀ ▶ (or arrows on the bottom bar)</div>
     </div>
 
     <section class="grid" id="cards" tabindex="-1"></section>
 
-    <div class="footerBar" role="navigation" aria-label="Tour navigation">
+    <div class="footerBar" role="navigation" aria-label="Feature pages">
       <div class="pager">
         <button class="arrowBtn" id="prevPage" aria-label="Previous page">
           <img src="assets/images/arrow_l.png" alt="Previous">
@@ -493,40 +437,18 @@
       </div>
 
       <div class="tiny" id="pageHint">
-        Press <b>←</b>/<b>→</b> to flip pages · Press <b>?</b> for shortcuts
+        Press <b>←</b>/<b>→</b> to flip feature pages
       </div>
     </div>
   </main>
 
   <script>
     // -------------------------
-    // Optional UI sounds:
-    // Your assets are .pcm, which browsers usually can't play directly.
-    // If you convert them to .wav, set these to:
-    //   assets/sounds/button_over.wav
-    //   assets/sounds/button_click.wav
-    // -------------------------
-    const SOUND = {
-      enabled: false,
-      hoverUrl: "", // e.g. "assets/sounds/button_over.wav"
-      clickUrl: ""  // e.g. "assets/sounds/button_click.wav"
-    };
-
-    function playSound(url){
-      if(!SOUND.enabled || !url) return;
-      try{
-        const a = new Audio(url);
-        a.volume = 0.55;
-        a.play().catch(()=>{});
-      }catch(_){}
-    }
-
-    // -------------------------
     // Content model (Wii-simple)
     // -------------------------
     const PAGES = [
       {
-        title: "Tour — Page 1",
+        title: "Features — Page 1",
         cards: [
           {
             title: "Open a Website",
@@ -571,7 +493,7 @@
         ]
       },
       {
-        title: "Tour — Page 2",
+        title: "Features — Page 2",
         cards: [
           {
             title: "Favorites",
@@ -616,7 +538,7 @@
         ]
       },
       {
-        title: "Tour — Page 3",
+        title: "Features — Page 3",
         cards: [
           {
             title: "Settings",
@@ -643,8 +565,8 @@
             icon: "assets/images/keyboard_key.png",
             text: "Keep shortcuts small in number, big in usefulness.",
             steps: [
-              "←/→ = tour pages (here)",
               "Ctrl/⌘+L = address bar",
+              "Alt+←/→ = back/forward",
               "Esc = close dialogs"
             ]
           },
@@ -666,7 +588,7 @@
     // Render
     // -------------------------
     const cardsEl = document.getElementById("cards");
-    const tourTitleEl = document.getElementById("tourTitle");
+    const featuresTitleEl = document.getElementById("featuresTitle");
     const dotsEl = document.getElementById("dots");
 
     let page = 0;
@@ -674,9 +596,8 @@
     function setAppbarHoverSwap(btnId, imgSelector, normal, over){
       const btn = document.getElementById(btnId);
       const img = btn.querySelector(imgSelector);
-      btn.addEventListener("mouseenter", ()=>{ img.src = over; playSound(SOUND.hoverUrl); });
+      btn.addEventListener("mouseenter", ()=>{ img.src = over; });
       btn.addEventListener("mouseleave", ()=>{ img.src = normal; });
-      btn.addEventListener("click", ()=> playSound(SOUND.clickUrl));
     }
 
     function renderDots(){
@@ -685,14 +606,14 @@
         const d = document.createElement("div");
         d.className = "dot" + (i===page ? " active" : "");
         d.title = "Page " + (i+1);
-        d.addEventListener("click", ()=>{ page=i; render(); playSound(SOUND.clickUrl); });
+        d.addEventListener("click", ()=>{ page=i; render(); });
         dotsEl.appendChild(d);
       }
     }
 
     function render(){
       const p = PAGES[page];
-      tourTitleEl.textContent = p.title;
+      featuresTitleEl.textContent = p.title;
 
       cardsEl.innerHTML = "";
       p.cards.forEach((c)=>{
@@ -738,9 +659,6 @@
         card.appendChild(top);
         card.appendChild(body);
 
-        card.addEventListener("mouseenter", ()=> playSound(SOUND.hoverUrl));
-        card.addEventListener("click", ()=> playSound(SOUND.clickUrl));
-
         cardsEl.appendChild(card);
       });
 
@@ -749,11 +667,11 @@
 
     function next(){
       page = (page + 1) % PAGES.length;
-      render(); playSound(SOUND.clickUrl);
+      render();
     }
     function prev(){
       page = (page - 1 + PAGES.length) % PAGES.length;
-      render(); playSound(SOUND.clickUrl);
+      render();
     }
 
     // -------------------------
@@ -765,36 +683,6 @@
     document.addEventListener("keydown", (e)=>{
       if(e.key === "ArrowRight") next();
       if(e.key === "ArrowLeft") prev();
-      if(e.key === "?"){
-        showShortcuts();
-      }
-    });
-
-    function showShortcuts(){
-      playSound(SOUND.clickUrl);
-      alert(
-        "WeBrowser shortcuts (suggested)\\n\\n" +
-        "Ctrl/⌘ + L  → Address bar\\n" +
-        "Ctrl/⌘ + R  → Reload\\n" +
-        "Alt + ←/→   → Back/Forward\\n" +
-        "Esc         → Close dialogs\\n" +
-        "←/→         → Flip tour pages (this help screen)"
-      );
-    }
-
-    document.getElementById("showShortcuts").addEventListener("click", showShortcuts);
-
-    document.getElementById("startTour").addEventListener("click", ()=>{
-      playSound(SOUND.clickUrl);
-      page = 0;
-      render();
-      document.getElementById("cards").focus();
-    });
-
-    document.getElementById("toggleSound").addEventListener("click", ()=>{
-      SOUND.enabled = !SOUND.enabled;
-      document.getElementById("soundState").textContent = SOUND.enabled ? "On" : "Off";
-      playSound(SOUND.clickUrl);
     });
 
     // Appbar hover swaps (uses your *_over.png assets)
