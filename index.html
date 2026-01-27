@@ -191,7 +191,7 @@
       max-width: 62ch;
     }
 
-    /* ---------- HERO BUTTONS (back again) ---------- */
+    /* ---------- HERO BUTTONS ---------- */
     .ctaRow{
       display:flex;
       flex-wrap:wrap;
@@ -467,6 +467,7 @@
       cursor: inherit;
       transition: transform .12s ease, border-color .12s ease;
       user-select:none;
+      text-decoration:none;
     }
     .platformTile:hover{
       transform: translateY(-2px);
@@ -539,9 +540,14 @@
           WeBrowser is built to feel like the Wii Internet Channel: clean, friendly, and fast to learn.
           Start here if you want the basics in 60 seconds — or scroll for the deeper controls.
         </p>
-<div class="ctaRow">
-<button class="wiiBtn" id="btnDownload"> ... </button>
-</div>
+
+        <div class="ctaRow">
+          <button class="wiiBtn" id="btnDownload">
+            <img src="assets/images/button_large.png" alt="">
+            <div class="label">Download</div>
+          </button>
+        </div>
+      </div>
 
       <aside class="panel heroRight">
         <div class="tipBox">
@@ -578,7 +584,7 @@
       </div>
 
       <div class="tiny" id="pageHint">
-        Press <b>←</b>/<b>→</b> to flip feature pages · Press <b>?</b> for shortcuts
+        Press <b>←</b>/<b>→</b> to flip feature pages
       </div>
     </div>
   </main>
@@ -757,28 +763,6 @@
     document.getElementById("prevPage").addEventListener("click", prev);
 
     // -------------------------
-    // Shortcuts / Sound
-    // -------------------------
-    function showShortcuts(){
-      playSound(SOUND.clickUrl);
-      alert(
-        "WeBrowser shortcuts (suggested)\n\n" +
-        "Ctrl/⌘ + L  → Address bar\n" +
-        "Ctrl/⌘ + R  → Reload\n" +
-        "Alt + ←/→   → Back/Forward\n" +
-        "Esc         → Close dialogs\n" +
-        "←/→         → Flip feature pages (this screen)"
-      );
-    }
-    document.getElementById("showShortcuts").addEventListener("click", showShortcuts);
-
-    document.getElementById("toggleSound").addEventListener("click", ()=>{
-      SOUND.enabled = !SOUND.enabled;
-      document.getElementById("soundState").textContent = SOUND.enabled ? "On" : "Off";
-      playSound(SOUND.clickUrl);
-    });
-
-    // -------------------------
     // Download modal
     // -------------------------
     const dlOverlay = document.getElementById("dlOverlay");
@@ -841,7 +825,6 @@
     document.addEventListener("keydown", (e)=>{
       if(e.key === "ArrowRight") next();
       if(e.key === "ArrowLeft") prev();
-      if(e.key === "?") showShortcuts();
       if(e.key === "Escape" && dlOverlay.classList.contains("show")) closeDownload();
     });
 
