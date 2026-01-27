@@ -35,14 +35,12 @@
       color: var(--ink);
       overflow-x:hidden;
 
-      /* Wii-white w/ soft blue glow */
       background:
         radial-gradient(1200px 700px at 20% 15%, rgba(125,211,255,.30), transparent 55%),
         radial-gradient(900px 650px at 85% 25%, rgba(58,168,255,.20), transparent 60%),
         radial-gradient(1000px 700px at 55% 90%, rgba(125,211,255,.18), transparent 55%),
         linear-gradient(#ffffff, #fbfeff);
 
-      /* Wii pointer cursor */
       cursor: url("assets/images/player1_point.png") 6 2, auto;
     }
 
@@ -186,12 +184,51 @@
       letter-spacing: .4px;
     }
     .sub{
-      margin: 0;
+      margin: 0 0 14px;
       color: var(--muted);
       line-height: 1.35;
       font-size: 15px;
       max-width: 62ch;
     }
+
+    /* ---------- HERO BUTTONS (back again) ---------- */
+    .ctaRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-top: 8px;
+    }
+    .wiiBtn{
+      position:relative;
+      border:0;
+      background: transparent;
+      padding:0;
+      cursor: inherit;
+      border-radius: 999px;
+      transition: transform .12s ease;
+    }
+    .wiiBtn img{
+      width: 156px;
+      height: auto;
+      display:block;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.12));
+    }
+    .wiiBtn .label{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 14px;
+      letter-spacing:.4px;
+      color:#0e2a3a;
+      text-shadow: 0 1px 0 rgba(255,255,255,.7);
+      user-select:none;
+    }
+    .wiiBtn:focus-visible{ outline:none; box-shadow: var(--ring); }
+    .wiiBtn:hover{ transform: translateY(-1px) scale(1.02); }
+    .wiiBtn:active{ transform: translateY(0px) scale(.985); }
 
     .heroRight{
       padding: 16px;
@@ -355,11 +392,113 @@
       line-height: 1.35;
     }
 
-    /* ---------- Responsive ---------- */
+    /* ---------- Download modal ---------- */
+    .modalOverlay{
+      position:fixed; inset:0;
+      background: rgba(10, 30, 45, .22);
+      backdrop-filter: blur(8px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 50;
+      padding: 18px;
+    }
+    .modalOverlay.show{ display:flex; }
+
+    .modal{
+      width: min(720px, 96vw);
+      border-radius: var(--radius2);
+      border: 1px solid rgba(80,160,210,.26);
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(245,252,255,.92));
+      box-shadow: 0 22px 55px rgba(0,35,60,.20);
+      overflow:hidden;
+      transform: translateY(6px) scale(.98);
+      opacity: 0;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+    .modalOverlay.show .modal{
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    .modalHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(80,160,210,.18);
+      background: linear-gradient(rgba(255,255,255,.70), rgba(255,255,255,.35));
+    }
+    .modalHead strong{
+      font-size: 16px;
+      letter-spacing:.2px;
+    }
+    .closeBtn{
+      border:0;
+      background: transparent;
+      cursor: inherit;
+      border-radius: 999px;
+      padding: 0;
+      line-height: 0;
+      transition: transform .12s ease;
+    }
+    .closeBtn:hover{ transform: translateY(-1px) scale(1.03); }
+    .closeBtn:active{ transform: translateY(0) scale(.98); }
+    .closeBtn svg{
+      width: 34px; height: 34px;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,.10));
+    }
+
+    .modalBody{
+      padding: 14px;
+    }
+    .platformGrid{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .platformTile{
+      border-radius: 18px;
+      border: 1px solid rgba(80,160,210,.18);
+      background: rgba(255,255,255,.72);
+      box-shadow: var(--shadow2);
+      padding: 12px 10px;
+      text-align:center;
+      cursor: inherit;
+      transition: transform .12s ease, border-color .12s ease;
+      user-select:none;
+    }
+    .platformTile:hover{
+      transform: translateY(-2px);
+      border-color: rgba(58,168,255,.34);
+    }
+    .platformTile:active{ transform: translateY(0) scale(.99); }
+    .platformTile img{
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.12));
+    }
+    .platformTile div{
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing:.2px;
+    }
+
+    .modalHint{
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+      text-align:center;
+    }
+
     @media (max-width: 900px){
       .hero{ grid-template-columns: 1fr; }
       .card{ grid-column: span 12; }
       h1{ font-size: 30px; }
+      .platformGrid{ grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
@@ -400,6 +539,23 @@
           WeBrowser is built to feel like the Wii Internet Channel: clean, friendly, and fast to learn.
           Start here if you want the basics in 60 seconds — or scroll for the deeper controls.
         </p>
+
+        <div class="ctaRow">
+          <button class="wiiBtn" id="btnDownload">
+            <img src="assets/images/button_large.png" alt="">
+            <div class="label">Download</div>
+          </button>
+
+          <button class="wiiBtn" id="showShortcuts">
+            <img src="assets/images/button_large.png" alt="">
+            <div class="label">Keyboard / Controller</div>
+          </button>
+
+          <button class="wiiBtn" id="toggleSound">
+            <img src="assets/images/button.png" alt="">
+            <div class="label">Sound: <span id="soundState">Off</span></div>
+          </button>
+        </div>
       </div>
 
       <aside class="panel heroRight">
@@ -437,37 +593,60 @@
       </div>
 
       <div class="tiny" id="pageHint">
-        Press <b>←</b>/<b>→</b> to flip feature pages
+        Press <b>←</b>/<b>→</b> to flip feature pages · Press <b>?</b> for shortcuts
       </div>
     </div>
   </main>
 
+  <!-- Download modal -->
+  <div class="modalOverlay" id="dlOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="dlTitle">
+      <div class="modalHead">
+        <strong id="dlTitle">Download WeBrowser</strong>
+        <button class="closeBtn" id="dlClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 7l10 10M17 7L7 17" stroke="rgba(20,40,55,.85)" stroke-width="2.4" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modalBody">
+        <div class="platformGrid" id="platformGrid">
+          <!-- built by JS -->
+        </div>
+        <div class="modalHint">Tip: press <b>Esc</b> to close</div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // -------------------------
-    // Content model (Wii-simple)
+    // Optional UI sounds (.wav recommended)
+    // -------------------------
+    const SOUND = {
+      enabled: false,
+      hoverUrl: "",
+      clickUrl: ""
+    };
+
+    function playSound(url){
+      if(!SOUND.enabled || !url) return;
+      try{
+        const a = new Audio(url);
+        a.volume = 0.55;
+        a.play().catch(()=>{});
+      }catch(_){}
+    }
+
+    // -------------------------
+    // Content model
     // -------------------------
     const PAGES = [
       {
         title: "Features — Page 1",
         cards: [
-          {
-            title: "Open a Website",
-            icon: "assets/images/appbar/www.png",
-            text: "Type a URL or search — WeBrowser keeps it clean and fast.",
-            ]
-          },
-          {
-            title: "Back / Forward",
-            icon: "assets/images/appbar/toolbar_return.png",
-            text: "Navigation should feel instant — like flipping TV channels.",
-            ]
-          },
-          {
-            title: "Reload",
-            icon: "assets/images/appbar/reload.png",
-            text: "Stuck page? One clean refresh.",
-            ]
-          },
+          { title: "Open a Website", icon: "assets/images/appbar/www.png", text: "Type a URL or search — WeBrowser keeps it clean and fast." },
+          { title: "Back / Forward", icon: "assets/images/appbar/toolbar_return.png", text: "Navigation should feel instant — like flipping TV channels." },
+          { title: "Reload", icon: "assets/images/appbar/reload.png", text: "Stuck page? One clean refresh." },
           {
             title: "Home",
             icon: "assets/images/appbar/btn_home.png",
@@ -483,65 +662,25 @@
       {
         title: "Features — Page 2",
         cards: [
-          {
-            title: "Favorites",
-            icon: "assets/images/appbar/favorites.png",
-            text: "Save pages as “channels” — big, friendly tiles.",
-            ]
-          },
-          {
-            title: "Save / Download",
-            icon: "assets/images/appbar/btn_save.png",
-            text: "Simple saves with clear confirmation.",
-            ]
-          },
-          {
-            title: "Reader Mode",
-            icon: "assets/images/textreader_box.png",
-            text: "Turn cluttered pages into clean text — like a Wii message board post.",
-            ]
-          },
-          {
-            title: "Tabs (if you have them)",
-            icon: "assets/images/more.png",
-            text: "Keep tabs minimal and visual — tiny tab bars don’t feel Wii.",
-            ]
-          }
+          { title: "Favorites", icon: "assets/images/appbar/favorites.png", text: "Save pages as “channels” — big, friendly tiles." },
+          { title: "Save / Download", icon: "assets/images/appbar/btn_save.png", text: "Simple saves with clear confirmation." },
+          { title: "Reader Mode", icon: "assets/images/textreader_box.png", text: "Turn cluttered pages into clean text — like a Wii message board post." },
+          { title: "Tabs (if you have them)", icon: "assets/images/more.png", text: "Keep tabs minimal and visual — tiny tab bars don’t feel Wii." }
         ]
       },
       {
         title: "Features — Page 3",
         cards: [
-          {
-            title: "Settings",
-            icon: "assets/images/appbar/settings.png",
-            text: "Everything important is 1–2 clicks away.",
-            ]
-          },
-          {
-            title: "Pointer Controls",
-            icon: "assets/images/player1_point.png",
-            text: "Make the cursor feel like a Wii Remote pointer.",
-            ]
-          },
-          {
-            title: "Keyboard / Controller",
-            icon: "assets/images/keyboard_key.png",
-            text: "Keep shortcuts small in number, big in usefulness.",
-            ]
-          },
-          {
-            title: "Privacy (simple wording)",
-            icon: "assets/images/remove.png",
-            text: "Use friendly labels: Clear Browsing Data, not scary technical terms.",
-            ]
-          }
+          { title: "Settings", icon: "assets/images/appbar/settings.png", text: "Everything important is 1–2 clicks away." },
+          { title: "Pointer Controls", icon: "assets/images/player1_point.png", text: "Make the cursor feel like a Wii Remote pointer." },
+          { title: "Keyboard / Controller", icon: "assets/images/keyboard_key.png", text: "Keep shortcuts small in number, big in usefulness." },
+          { title: "Privacy (simple wording)", icon: "assets/images/remove.png", text: "Use friendly labels: Clear Browsing Data, not scary technical terms." }
         ]
       }
     ];
 
     // -------------------------
-    // Render
+    // Render feature cards
     // -------------------------
     const cardsEl = document.getElementById("cards");
     const featuresTitleEl = document.getElementById("featuresTitle");
@@ -552,8 +691,9 @@
     function setAppbarHoverSwap(btnId, imgSelector, normal, over){
       const btn = document.getElementById(btnId);
       const img = btn.querySelector(imgSelector);
-      btn.addEventListener("mouseenter", ()=>{ img.src = over; });
+      btn.addEventListener("mouseenter", ()=>{ img.src = over; playSound(SOUND.hoverUrl); });
       btn.addEventListener("mouseleave", ()=>{ img.src = normal; });
+      btn.addEventListener("click", ()=> playSound(SOUND.clickUrl));
     }
 
     function renderDots(){
@@ -562,7 +702,7 @@
         const d = document.createElement("div");
         d.className = "dot" + (i===page ? " active" : "");
         d.title = "Page " + (i+1);
-        d.addEventListener("click", ()=>{ page=i; render(); });
+        d.addEventListener("click", ()=>{ page=i; render(); playSound(SOUND.clickUrl); });
         dotsEl.appendChild(d);
       }
     }
@@ -593,27 +733,31 @@
 
         left.appendChild(icon);
         left.appendChild(h);
-
         top.appendChild(left);
 
         const body = document.createElement("div");
 
         const text = document.createElement("p");
         text.textContent = c.text;
-
-        const ul = document.createElement("ul");
-        ul.className = "steps";
-        c.steps.forEach(s=>{
-          const li = document.createElement("li");
-          li.textContent = s;
-          ul.appendChild(li);
-        });
-
         body.appendChild(text);
-        body.appendChild(ul);
+
+        // ✅ safe: only render steps if provided
+        if(Array.isArray(c.steps) && c.steps.length){
+          const ul = document.createElement("ul");
+          ul.className = "steps";
+          c.steps.forEach(s=>{
+            const li = document.createElement("li");
+            li.textContent = s;
+            ul.appendChild(li);
+          });
+          body.appendChild(ul);
+        }
 
         card.appendChild(top);
         card.appendChild(body);
+
+        card.addEventListener("mouseenter", ()=> playSound(SOUND.hoverUrl));
+        card.addEventListener("click", ()=> playSound(SOUND.clickUrl));
 
         cardsEl.appendChild(card);
       });
@@ -621,24 +765,99 @@
       renderDots();
     }
 
-    function next(){
-      page = (page + 1) % PAGES.length;
-      render();
-    }
-    function prev(){
-      page = (page - 1 + PAGES.length) % PAGES.length;
-      render();
-    }
+    function next(){ page = (page + 1) % PAGES.length; render(); playSound(SOUND.clickUrl); }
+    function prev(){ page = (page - 1 + PAGES.length) % PAGES.length; render(); playSound(SOUND.clickUrl); }
 
-    // -------------------------
-    // Controls
-    // -------------------------
     document.getElementById("nextPage").addEventListener("click", next);
     document.getElementById("prevPage").addEventListener("click", prev);
 
+    // -------------------------
+    // Shortcuts / Sound
+    // -------------------------
+    function showShortcuts(){
+      playSound(SOUND.clickUrl);
+      alert(
+        "WeBrowser shortcuts (suggested)\n\n" +
+        "Ctrl/⌘ + L  → Address bar\n" +
+        "Ctrl/⌘ + R  → Reload\n" +
+        "Alt + ←/→   → Back/Forward\n" +
+        "Esc         → Close dialogs\n" +
+        "←/→         → Flip feature pages (this screen)"
+      );
+    }
+    document.getElementById("showShortcuts").addEventListener("click", showShortcuts);
+
+    document.getElementById("toggleSound").addEventListener("click", ()=>{
+      SOUND.enabled = !SOUND.enabled;
+      document.getElementById("soundState").textContent = SOUND.enabled ? "On" : "Off";
+      playSound(SOUND.clickUrl);
+    });
+
+    // -------------------------
+    // Download modal
+    // -------------------------
+    const dlOverlay = document.getElementById("dlOverlay");
+    const dlClose = document.getElementById("dlClose");
+    const platformGrid = document.getElementById("platformGrid");
+
+    const PLATFORMS = [
+      { name: "macOS",   icon: "assets/images/macos.png",   href: "#" },
+      { name: "Android", icon: "assets/images/android.png", href: "#" },
+      { name: "Windows", icon: "assets/images/windows.png", href: "#" },
+      { name: "Linux",   icon: "assets/images/linux.png",   href: "#" },
+      { name: "iOS",     icon: "assets/images/ios.png",     href: "#" },
+    ];
+
+    function buildPlatformTiles(){
+      platformGrid.innerHTML = "";
+      PLATFORMS.forEach(p=>{
+        const a = document.createElement("a");
+        a.className = "platformTile";
+        a.href = p.href;
+        a.setAttribute("role","button");
+        a.addEventListener("click", ()=> playSound(SOUND.clickUrl));
+
+        const img = document.createElement("img");
+        img.src = p.icon;
+        img.alt = p.name;
+
+        const label = document.createElement("div");
+        label.textContent = p.name;
+
+        a.appendChild(img);
+        a.appendChild(label);
+        platformGrid.appendChild(a);
+      });
+    }
+
+    function openDownload(){
+      playSound(SOUND.clickUrl);
+      dlOverlay.classList.add("show");
+      dlOverlay.setAttribute("aria-hidden","false");
+      dlClose.focus();
+    }
+
+    function closeDownload(){
+      dlOverlay.classList.remove("show");
+      dlOverlay.setAttribute("aria-hidden","true");
+    }
+
+    document.getElementById("btnDownload").addEventListener("click", openDownload);
+    dlClose.addEventListener("click", closeDownload);
+
+    // click outside modal closes
+    dlOverlay.addEventListener("click", (e)=>{
+      if(e.target === dlOverlay) closeDownload();
+    });
+
+    // -------------------------
+    // Keyboard controls
+    // -------------------------
     document.addEventListener("keydown", (e)=>{
       if(e.key === "ArrowRight") next();
       if(e.key === "ArrowLeft") prev();
+      if(e.key === "?") showShortcuts();
+      if(e.key === "Escape" && dlOverlay.classList.contains("show")) closeDownload();
     });
 
     // Appbar hover swaps (uses your *_over.png assets)
@@ -674,6 +893,7 @@
     }
 
     // Init
+    buildPlatformTiles();
     render();
   </script>
 </body>
