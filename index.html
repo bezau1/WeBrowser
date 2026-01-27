@@ -1,1 +1,836 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WeBrowser — Quick Start</title>
+  <meta name="color-scheme" content="light" />
+  <style>
+    /* ---------- Wii-ish font ---------- */
+    @font-face{
+      font-family: "WeWii";
+      src: url("assets/fonts/font_regular.ttf") format("truetype");
+      font-display: swap;
+    }
 
+    :root{
+      --wii-blue: #3aa8ff;
+      --wii-blue2:#7dd3ff;
+      --ink: #1a2a36;
+      --muted: #5d7686;
+      --card: rgba(255,255,255,.92);
+      --card2: rgba(245,252,255,.92);
+      --shadow: 0 18px 40px rgba(0,35,60,.12);
+      --shadow2: 0 10px 25px rgba(0,35,60,.10);
+      --ring: 0 0 0 3px rgba(58,168,255,.28), 0 0 0 8px rgba(58,168,255,.10);
+      --radius: 22px;
+      --radius2: 28px;
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: WeWii, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--ink);
+      overflow-x:hidden;
+
+      /* Wii-white w/ soft blue glow */
+      background:
+        radial-gradient(1200px 700px at 20% 15%, rgba(125,211,255,.30), transparent 55%),
+        radial-gradient(900px 650px at 85% 25%, rgba(58,168,255,.20), transparent 60%),
+        radial-gradient(1000px 700px at 55% 90%, rgba(125,211,255,.18), transparent 55%),
+        linear-gradient(#ffffff, #fbfeff);
+
+      /* Wii pointer cursor */
+      cursor: url("assets/images/player1_point.png") 6 2, auto;
+    }
+
+    /* ---------- Subtle bubbles ---------- */
+    .bubbles{
+      position:fixed; inset:0;
+      pointer-events:none;
+      opacity:.55;
+      filter: saturate(1.05);
+    }
+    .bubble{
+      position:absolute;
+      width: 22px; height: 22px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.95), rgba(255,255,255,.20) 45%, rgba(125,211,255,.12) 70%, rgba(58,168,255,.08));
+      box-shadow: inset 0 0 0 1px rgba(58,168,255,.14);
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp{
+      from{ transform: translateY(110vh) translateX(0) scale(.9); opacity:0; }
+      10%{ opacity:.75; }
+      to{ transform: translateY(-20vh) translateX(var(--drift)) scale(1.25); opacity:0; }
+    }
+
+    /* ---------- Top app bar ---------- */
+    header{
+      position:sticky;
+      top:0;
+      z-index: 10;
+      padding: 14px 16px 10px;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(rgba(255,255,255,.85), rgba(255,255,255,.55));
+      border-bottom: 1px solid rgba(80,160,210,.20);
+    }
+    .appbar{
+      max-width: 1080px;
+      margin: 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width: 200px;
+    }
+    .brand img{
+      width: 62px; height:auto;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,.10));
+      image-rendering: pixelated;
+    }
+    .brand .title{
+      display:flex; flex-direction:column; line-height:1.05;
+    }
+    .brand .title strong{
+      font-size: 20px;
+      letter-spacing: .4px;
+    }
+    .brand .title span{
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: .2px;
+    }
+
+    .barBtns{
+      display:flex; align-items:center; gap:10px;
+    }
+
+    .iconBtn{
+      border:0;
+      background: transparent;
+      padding: 0;
+      cursor: inherit;
+      border-radius: 999px;
+      transition: transform .12s ease;
+    }
+    .iconBtn img{
+      width: 42px; height: 42px;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,.10));
+    }
+    .iconBtn:focus-visible{ outline:none; box-shadow: var(--ring); }
+    .iconBtn:hover{ transform: translateY(-1px) scale(1.03); }
+    .iconBtn:active{ transform: translateY(0px) scale(.98); }
+
+    /* ---------- Main layout ---------- */
+    main{
+      max-width: 1080px;
+      margin: 18px auto 40px;
+      padding: 0 16px;
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 14px;
+      align-items:stretch;
+    }
+
+    .panel{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid rgba(80,160,210,.20);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+    }
+
+    .heroLeft{
+      padding: 18px 18px 16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .heroLeft::after{
+      content:"";
+      position:absolute; inset:-40px -40px auto auto;
+      width: 220px; height:220px;
+      background: radial-gradient(circle at 30% 30%, rgba(125,211,255,.35), transparent 60%);
+      transform: rotate(10deg);
+      pointer-events:none;
+    }
+
+    .kicker{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(58,168,255,.10);
+      border: 1px solid rgba(58,168,255,.22);
+      color: rgba(0,70,120,.85);
+      font-size: 12px;
+      letter-spacing:.2px;
+    }
+    .kickerDot{
+      width: 8px; height:8px; border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--wii-blue));
+      box-shadow: 0 0 0 2px rgba(58,168,255,.18);
+    }
+
+    h1{
+      margin: 10px 0 6px;
+      font-size: 34px;
+      letter-spacing: .4px;
+    }
+    .sub{
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 15px;
+      max-width: 62ch;
+    }
+
+    .ctaRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-top: 8px;
+    }
+
+    .wiiBtn{
+      position:relative;
+      border:0;
+      background: transparent;
+      padding:0;
+      cursor: inherit;
+      border-radius: 999px;
+      transition: transform .12s ease;
+    }
+    .wiiBtn img{
+      width: 156px;
+      height: auto;
+      display:block;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.12));
+    }
+    .wiiBtn .label{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 14px;
+      letter-spacing:.4px;
+      color:#0e2a3a;
+      text-shadow: 0 1px 0 rgba(255,255,255,.7);
+      user-select:none;
+    }
+    .wiiBtn:focus-visible{ outline:none; box-shadow: var(--ring); }
+    .wiiBtn:hover{ transform: translateY(-1px) scale(1.02); }
+    .wiiBtn:active{ transform: translateY(0px) scale(.985); }
+
+    .heroRight{
+      padding: 16px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
+    .tipBox{
+      border-radius: var(--radius);
+      border: 1px solid rgba(80,160,210,.18);
+      background: rgba(255,255,255,.72);
+      padding: 12px 12px;
+      box-shadow: var(--shadow2);
+    }
+    .tipBox h3{
+      margin: 0 0 6px;
+      font-size: 16px;
+      letter-spacing:.2px;
+    }
+    .tipBox p{
+      margin:0;
+      color: var(--muted);
+      line-height:1.35;
+      font-size: 13px;
+    }
+
+    /* ---------- Cards grid ---------- */
+    .sectionHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+      margin: 18px 2px 10px;
+    }
+    .sectionHead h2{
+      margin: 0;
+      font-size: 20px;
+      letter-spacing:.25px;
+    }
+    .sectionHead .hint{
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+    }
+    .card{
+      grid-column: span 6;
+      padding: 14px 14px 12px;
+      border-radius: var(--radius2);
+      border: 1px solid rgba(80,160,210,.20);
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(245,252,255,.92));
+      box-shadow: var(--shadow2);
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:auto -40px -40px auto;
+      width: 180px; height:180px;
+      background: radial-gradient(circle at 30% 30%, rgba(58,168,255,.16), transparent 62%);
+      transform: rotate(-10deg);
+      pointer-events:none;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(58,168,255,.34);
+      box-shadow: 0 16px 34px rgba(0,35,60,.14);
+    }
+    .card:focus-within{ box-shadow: var(--shadow2), var(--ring); }
+
+    .cardTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .cardTop .iconRow{
+      display:flex; gap:8px; align-items:center;
+    }
+    .miniIcon{
+      width: 28px; height: 28px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.10));
+    }
+    .card h3{
+      margin:0;
+      font-size: 16px;
+      letter-spacing:.2px;
+    }
+    .card p{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .steps{
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: #365062;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .steps li{ margin: 4px 0; }
+
+    /* ---------- Footer controls ---------- */
+    .footerBar{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:space-between;
+      padding: 12px;
+      border-radius: var(--radius2);
+      border: 1px solid rgba(80,160,210,.20);
+      background: rgba(255,255,255,.70);
+      box-shadow: var(--shadow2);
+    }
+    .pager{
+      display:flex; align-items:center; gap:8px;
+    }
+    .arrowBtn{
+      border:0;
+      background: transparent;
+      padding: 0;
+      cursor: inherit;
+      border-radius: 999px;
+      transition: transform .12s ease;
+    }
+    .arrowBtn img{
+      width: 38px; height: 38px;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,.10));
+    }
+    .arrowBtn:focus-visible{ outline:none; box-shadow: var(--ring); }
+    .arrowBtn:hover{ transform: translateY(-1px) scale(1.02); }
+    .arrowBtn:active{ transform: translateY(0px) scale(.98); }
+
+    .dots{
+      display:flex; gap:6px; align-items:center;
+      padding: 0 6px;
+    }
+    .dot{
+      width: 10px; height:10px; border-radius: 999px;
+      background: rgba(80,120,150,.25);
+      box-shadow: inset 0 0 0 1px rgba(80,120,150,.18);
+    }
+    .dot.active{
+      background: radial-gradient(circle at 30% 30%, #fff, var(--wii-blue));
+      box-shadow: inset 0 0 0 1px rgba(58,168,255,.35), 0 0 0 3px rgba(58,168,255,.12);
+    }
+
+    .tiny{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 900px){
+      .hero{ grid-template-columns: 1fr; }
+      .card{ grid-column: span 12; }
+      h1{ font-size: 30px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bubbles" aria-hidden="true" id="bubbles"></div>
+
+  <header>
+    <div class="appbar">
+      <div class="brand">
+        <img src="assets/images/logo.png" alt="WeBrowser logo" />
+        <div class="title">
+          <strong>WeBrowser</strong>
+          <span>Quick Start & Controls</span>
+        </div>
+      </div>
+
+      <div class="barBtns" aria-label="Top controls">
+        <button class="iconBtn" id="btnHome" title="Home">
+          <img src="assets/images/appbar/btn_home.png" alt="Home">
+        </button>
+        <button class="iconBtn" id="btnFav" title="Favorites">
+          <img src="assets/images/appbar/favorites.png" alt="Favorites">
+        </button>
+        <button class="iconBtn" id="btnSettings" title="Settings">
+          <img src="assets/images/appbar/settings.png" alt="Settings">
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="panel heroLeft">
+        <div class="kicker"><span class="kickerDot"></span> Welcome — this page is “Wii-simple” on purpose</div>
+        <h1>Point. Click. Browse.</h1>
+        <p class="sub">
+          WeBrowser is built to feel like the Wii Internet Channel: clean, friendly, and fast to learn.
+          Start here if you want the basics in 60 seconds — or scroll for the deeper controls.
+        </p>
+
+        <div class="ctaRow">
+          <button class="wiiBtn" id="startTour">
+            <img src="assets/images/button_large.png" alt="">
+            <div class="label">Start the Tour</div>
+          </button>
+
+          <button class="wiiBtn" id="showShortcuts">
+            <img src="assets/images/button_large.png" alt="">
+            <div class="label">Keyboard / Controller</div>
+          </button>
+
+          <button class="wiiBtn" id="toggleSound">
+            <img src="assets/images/button.png" alt="">
+            <div class="label">Sound: <span id="soundState">Off</span></div>
+          </button>
+        </div>
+      </div>
+
+      <aside class="panel heroRight">
+        <div class="tipBox">
+          <h3>“A-button” mindset</h3>
+          <p>Big targets, clear feedback, no tiny UI. If something is clickable, it should feel obvious.</p>
+        </div>
+        <div class="tipBox">
+          <h3>Wii-style navigation</h3>
+          <p>Use the top icons like a channel toolbar: Home, Favorites, Settings.</p>
+        </div>
+        <div class="tipBox">
+          <h3>Tip</h3>
+          <p>Try hovering tiles — the page gives subtle “hover pop” feedback like the Wii menu.</p>
+        </div>
+      </aside>
+    </section>
+
+    <div class="sectionHead">
+      <h2 id="tourTitle">Tour — Page 1</h2>
+      <div class="hint">Use ◀ ▶ (or arrows on the bottom bar)</div>
+    </div>
+
+    <section class="grid" id="cards" tabindex="-1"></section>
+
+    <div class="footerBar" role="navigation" aria-label="Tour navigation">
+      <div class="pager">
+        <button class="arrowBtn" id="prevPage" aria-label="Previous page">
+          <img src="assets/images/arrow_l.png" alt="Previous">
+        </button>
+        <div class="dots" id="dots" aria-label="Pages"></div>
+        <button class="arrowBtn" id="nextPage" aria-label="Next page">
+          <img src="assets/images/arrow_r.png" alt="Next">
+        </button>
+      </div>
+
+      <div class="tiny" id="pageHint">
+        Press <b>←</b>/<b>→</b> to flip pages · Press <b>?</b> for shortcuts
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // -------------------------
+    // Optional UI sounds:
+    // Your assets are .pcm, which browsers usually can't play directly.
+    // If you convert them to .wav, set these to:
+    //   assets/sounds/button_over.wav
+    //   assets/sounds/button_click.wav
+    // -------------------------
+    const SOUND = {
+      enabled: false,
+      hoverUrl: "", // e.g. "assets/sounds/button_over.wav"
+      clickUrl: ""  // e.g. "assets/sounds/button_click.wav"
+    };
+
+    function playSound(url){
+      if(!SOUND.enabled || !url) return;
+      try{
+        const a = new Audio(url);
+        a.volume = 0.55;
+        a.play().catch(()=>{});
+      }catch(_){}
+    }
+
+    // -------------------------
+    // Content model (Wii-simple)
+    // -------------------------
+    const PAGES = [
+      {
+        title: "Tour — Page 1",
+        cards: [
+          {
+            title: "Open a Website",
+            icon: "assets/images/appbar/www.png",
+            text: "Type a URL or search — WeBrowser keeps it clean and readable.",
+            steps: [
+              "Click the address bar",
+              "Type a site (or search terms)",
+              "Press Enter / A"
+            ]
+          },
+          {
+            title: "Back / Forward",
+            icon: "assets/images/appbar/toolbar_return.png",
+            text: "Navigation should feel instant — like flipping TV channels.",
+            steps: [
+              "Use Back to return",
+              "Use Forward to redo",
+              "Long-press Back to see history (optional feature)"
+            ]
+          },
+          {
+            title: "Reload",
+            icon: "assets/images/appbar/reload.png",
+            text: "Stuck page? One clean refresh.",
+            steps: [
+              "Click Reload",
+              "If a page is broken, try Reload twice",
+              "If still broken, open Settings → Clear cache"
+            ]
+          },
+          {
+            title: "Home",
+            icon: "assets/images/appbar/btn_home.png",
+            text: "Home brings you back to your comfy start screen.",
+            steps: [
+              "Click Home anytime",
+              "Pin your favorite launch tiles there",
+              "Keep Home uncluttered: 8–12 tiles max"
+            ]
+          }
+        ]
+      },
+      {
+        title: "Tour — Page 2",
+        cards: [
+          {
+            title: "Favorites",
+            icon: "assets/images/appbar/favorites.png",
+            text: "Save pages as “channels” — big, friendly tiles.",
+            steps: [
+              "Open a site",
+              "Click Favorites",
+              "Choose Add / Save"
+            ]
+          },
+          {
+            title: "Save / Download",
+            icon: "assets/images/appbar/btn_save.png",
+            text: "Simple saves with clear confirmation.",
+            steps: [
+              "Click Save",
+              "Pick Downloads / Files",
+              "Open the Downloads box to manage"
+            ]
+          },
+          {
+            title: "Reader Mode",
+            icon: "assets/images/textreader_box.png",
+            text: "Turn cluttered pages into clean text — like a Wii message board post.",
+            steps: [
+              "Open an article",
+              "Toggle Reader Mode",
+              "Adjust text size for the couch"
+            ]
+          },
+          {
+            title: "Tabs (if you have them)",
+            icon: "assets/images/more.png",
+            text: "Keep tabs minimal and visual — tiny tab bars don’t feel Wii.",
+            steps: [
+              "Use a tile-style tab switcher",
+              "Close tabs with big buttons",
+              "Show previews, not tiny favicons"
+            ]
+          }
+        ]
+      },
+      {
+        title: "Tour — Page 3",
+        cards: [
+          {
+            title: "Settings",
+            icon: "assets/images/appbar/settings.png",
+            text: "Everything important is 1–2 clicks away.",
+            steps: [
+              "Change theme / zoom",
+              "Clear cache / history",
+              "Toggle pointer visuals"
+            ]
+          },
+          {
+            title: "Pointer Controls",
+            icon: "assets/images/player1_point.png",
+            text: "Make the cursor feel like a Wii Remote pointer.",
+            steps: [
+              "Use a big cursor",
+              "Add hover glow on buttons",
+              "Optional: “snap” focus between tiles"
+            ]
+          },
+          {
+            title: "Keyboard / Controller",
+            icon: "assets/images/keyboard_key.png",
+            text: "Keep shortcuts small in number, big in usefulness.",
+            steps: [
+              "←/→ = tour pages (here)",
+              "Ctrl/⌘+L = address bar",
+              "Esc = close dialogs"
+            ]
+          },
+          {
+            title: "Privacy (simple wording)",
+            icon: "assets/images/remove.png",
+            text: "Use friendly labels: Clear Browsing Data, not scary technical terms.",
+            steps: [
+              "History",
+              "Cache",
+              "Cookies (optional)"
+            ]
+          }
+        ]
+      }
+    ];
+
+    // -------------------------
+    // Render
+    // -------------------------
+    const cardsEl = document.getElementById("cards");
+    const tourTitleEl = document.getElementById("tourTitle");
+    const dotsEl = document.getElementById("dots");
+
+    let page = 0;
+
+    function setAppbarHoverSwap(btnId, imgSelector, normal, over){
+      const btn = document.getElementById(btnId);
+      const img = btn.querySelector(imgSelector);
+      btn.addEventListener("mouseenter", ()=>{ img.src = over; playSound(SOUND.hoverUrl); });
+      btn.addEventListener("mouseleave", ()=>{ img.src = normal; });
+      btn.addEventListener("click", ()=> playSound(SOUND.clickUrl));
+    }
+
+    function renderDots(){
+      dotsEl.innerHTML = "";
+      for(let i=0;i<PAGES.length;i++){
+        const d = document.createElement("div");
+        d.className = "dot" + (i===page ? " active" : "");
+        d.title = "Page " + (i+1);
+        d.addEventListener("click", ()=>{ page=i; render(); playSound(SOUND.clickUrl); });
+        dotsEl.appendChild(d);
+      }
+    }
+
+    function render(){
+      const p = PAGES[page];
+      tourTitleEl.textContent = p.title;
+
+      cardsEl.innerHTML = "";
+      p.cards.forEach((c)=>{
+        const card = document.createElement("article");
+        card.className = "card";
+        card.tabIndex = 0;
+
+        const top = document.createElement("div");
+        top.className = "cardTop";
+
+        const left = document.createElement("div");
+        left.className = "iconRow";
+
+        const icon = document.createElement("img");
+        icon.className = "miniIcon";
+        icon.src = c.icon;
+        icon.alt = "";
+
+        const h = document.createElement("h3");
+        h.textContent = c.title;
+
+        left.appendChild(icon);
+        left.appendChild(h);
+
+        top.appendChild(left);
+
+        const body = document.createElement("div");
+
+        const text = document.createElement("p");
+        text.textContent = c.text;
+
+        const ul = document.createElement("ul");
+        ul.className = "steps";
+        c.steps.forEach(s=>{
+          const li = document.createElement("li");
+          li.textContent = s;
+          ul.appendChild(li);
+        });
+
+        body.appendChild(text);
+        body.appendChild(ul);
+
+        card.appendChild(top);
+        card.appendChild(body);
+
+        card.addEventListener("mouseenter", ()=> playSound(SOUND.hoverUrl));
+        card.addEventListener("click", ()=> playSound(SOUND.clickUrl));
+
+        cardsEl.appendChild(card);
+      });
+
+      renderDots();
+    }
+
+    function next(){
+      page = (page + 1) % PAGES.length;
+      render(); playSound(SOUND.clickUrl);
+    }
+    function prev(){
+      page = (page - 1 + PAGES.length) % PAGES.length;
+      render(); playSound(SOUND.clickUrl);
+    }
+
+    // -------------------------
+    // Controls
+    // -------------------------
+    document.getElementById("nextPage").addEventListener("click", next);
+    document.getElementById("prevPage").addEventListener("click", prev);
+
+    document.addEventListener("keydown", (e)=>{
+      if(e.key === "ArrowRight") next();
+      if(e.key === "ArrowLeft") prev();
+      if(e.key === "?"){
+        showShortcuts();
+      }
+    });
+
+    function showShortcuts(){
+      playSound(SOUND.clickUrl);
+      alert(
+        "WeBrowser shortcuts (suggested)\\n\\n" +
+        "Ctrl/⌘ + L  → Address bar\\n" +
+        "Ctrl/⌘ + R  → Reload\\n" +
+        "Alt + ←/→   → Back/Forward\\n" +
+        "Esc         → Close dialogs\\n" +
+        "←/→         → Flip tour pages (this help screen)"
+      );
+    }
+
+    document.getElementById("showShortcuts").addEventListener("click", showShortcuts);
+
+    document.getElementById("startTour").addEventListener("click", ()=>{
+      playSound(SOUND.clickUrl);
+      page = 0;
+      render();
+      document.getElementById("cards").focus();
+    });
+
+    document.getElementById("toggleSound").addEventListener("click", ()=>{
+      SOUND.enabled = !SOUND.enabled;
+      document.getElementById("soundState").textContent = SOUND.enabled ? "On" : "Off";
+      playSound(SOUND.clickUrl);
+    });
+
+    // Appbar hover swaps (uses your *_over.png assets)
+    setAppbarHoverSwap("btnHome","img",
+      "assets/images/appbar/btn_home.png",
+      "assets/images/appbar/btn_home_over.png"
+    );
+    setAppbarHoverSwap("btnFav","img",
+      "assets/images/appbar/favorites.png",
+      "assets/images/appbar/favorites_over.png"
+    );
+    setAppbarHoverSwap("btnSettings","img",
+      "assets/images/appbar/settings.png",
+      "assets/images/appbar/settings_over.png"
+    );
+
+    // -------------------------
+    // Bubbles generator
+    // -------------------------
+    const bubbles = document.getElementById("bubbles");
+    const bubbleCount = 22;
+    for(let i=0;i<bubbleCount;i++){
+      const b = document.createElement("div");
+      b.className = "bubble";
+      const size = 10 + Math.random()*26;
+      b.style.width = size + "px";
+      b.style.height = size + "px";
+      b.style.left = (Math.random()*100) + "vw";
+      b.style.animationDuration = (10 + Math.random()*12) + "s";
+      b.style.animationDelay = (-Math.random()*12) + "s";
+      b.style.setProperty("--drift", ((Math.random()*2-1) * 120).toFixed(0) + "px");
+      bubbles.appendChild(b);
+    }
+
+    // Init
+    render();
+  </script>
+</body>
+</html>
